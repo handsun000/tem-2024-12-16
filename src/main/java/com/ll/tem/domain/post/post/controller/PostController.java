@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/posts")
 public class PostController {
 
+    //목적지 url이 자신의 url과 같으면 생략 가능
     @GetMapping("/write")
     @ResponseBody
     public String showWrite() {
         return """
-                <form action="/posts/write" method="POST">
+                <form method="POST">
                     <input type="text" name="title" placeholder="제목">
                     <textarea name="content" placeholder="내용"></textarea>
                     <button type="submit">글쓰기</button>
