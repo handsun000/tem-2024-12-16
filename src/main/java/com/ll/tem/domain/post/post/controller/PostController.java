@@ -14,37 +14,17 @@ public class PostController {
     @GetMapping("/write")
     @ResponseBody
     public String showWrite() {
-        return """
-                <form method="POST">
-                    <input type="text" name="title" placeholder="제목">
-                    <textarea name="content" placeholder="내용"></textarea>
-                    <button type="submit">글쓰기</button>
-                </form>
-                """;
+        return getFormHtml("","","");
     }
+
     @PostMapping("/write")
     @ResponseBody
     public String doWrite(String title, String content) {
-        if (title == null || title.isBlank()) {
-            return """
-                <div>%s</div>
-                <form method="POST">
-                    <input type="text" name="title" placeholder="제목">
-                    <textarea name="content" placeholder="내용"></textarea>
-                    <button type="submit">글쓰기</button>
-                </form>
-                """.formatted("제목을 입력하세요");
-        }
-        if (content == null || content.isBlank()) {
-            return """
-                <div>%s</div>
-                <form method="POST">
-                    <input type="text" name="title" placeholder="제목" value="%s">
-                    <textarea name="content" placeholder="내용"></textarea>
-                    <button type="submit">글쓰기</button>
-                </form>
-                """.formatted("내용을 입력하세요",title);
-        }
+        if (title == null || title.isBlank()) return getFormHtml("제목을 입력하세요", title, content);
+        if (title.length() < 5) return getFormHtml("제목 5자 이상 입력하세요", title, content);
+        if (content == null || content.isBlank()) return getFormHtml("내용을 입력하세요", title, content);
+        if (content.length() < 10) return getFormHtml("내용 10자 이상 입력하세요", title, content);
+
         return """
                 <h1>글쓰기 완료</h1>
                 <div>
@@ -52,5 +32,18 @@ public class PostController {
                     <p>%s</p>
                 </div>
                 """.formatted(title, content);
+    }
+
+    private String getFormHtml(String errorMessage, String title, String content) {
+        return """
+                <div>%s</div>
+                <form method="POST">
+                    <input type="text" name="title" placeholder="제목" value="%s">
+                    <br>
+                    <textarea name="content" placeholder="내용">%s</textarea>
+                    <br>
+                    <button type="submit">글쓰기</button>
+                </form>
+                """.formatted(errorMessage, title, content);
     }
 }
