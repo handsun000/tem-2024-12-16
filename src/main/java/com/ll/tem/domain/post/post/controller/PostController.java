@@ -9,11 +9,9 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,6 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/posts")
 public class PostController {
-
     public List<Post> posts = new ArrayList<>() {{
         add(
                 Post.builder()
@@ -47,13 +44,13 @@ public class PostController {
     @GetMapping
     @ResponseBody
     public String showList() {
-
         String ul = "<ul>" +
                 posts
                         .reversed()
                         .stream()
                         .map(post -> "<li>%s</li>".formatted(post.getTitle()))
                         .collect(Collectors.joining()) + "</ul>";
+
         String body = """
                 <h1>글 목록</h1>
                 %s
@@ -63,16 +60,16 @@ public class PostController {
         return body;
     }
 
-    //목적지 url이 자신의 url과 같으면 생략 가능wwww
+    //목적지 url이 자신의 url과 같으면 생략 가능
     @GetMapping("/write")
     public String showWrite() {
         return "domain/post/post/write";
     }
 
     @PostMapping("/write")
-    public ResponseEntity<String> write(@Valid PostWriteForm form, BindingResult bindingResult) {
+    public String write(@ModelAttribute("form") @Valid PostWriteForm form, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            String errorMessages = bindingResult
+            String errorMessage = bindingResult
                     .getAllErrors()
                     .stream()
                     .map(error -> error.getDefaultMessage())
@@ -80,32 +77,19 @@ public class PostController {
                     .map(message -> message.split("-", 2)[1])
                     .collect(Collectors.joining("<br>"));
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(
-                            getFormHtml(errorMessages, form.title, form.content)
-                    );
+            model.addAttribute("errorMessage", errorMessage);
+
+            return "domain/post/post/write";
         }
+
         posts.add(
                 Post.builder()
                         .title(form.title)
                         .content(form.content)
                         .build()
         );
-        return ResponseEntity.status(302).header("Location", "/posts").build();
-    }
 
-    private String getFormHtml(String errorMessage, String title, String content) {
-        return """
-                <div>%s</div>
-                <form method="POST">
-                    <input type="text" name="title" placeholder="제목" value="%s">
-                    <br>
-                    <textarea name="content" placeholder="내용">%s</textarea>
-                    <br>
-                    <button type="submit">글쓰기</button>
-                </form>
-                """.formatted(errorMessage, title, content);
+        return "redirect:/posts";
     }
 
     private record PostWriteForm(
