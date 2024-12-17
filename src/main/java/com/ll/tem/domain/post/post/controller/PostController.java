@@ -7,10 +7,13 @@ import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/posts")
@@ -25,7 +28,16 @@ public class PostController {
 
     @PostMapping("/write")
     @ResponseBody
-    public String write(@Valid PostWriteForm form) {
+    public String write(@Valid PostWriteForm form, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessages = bindingResult
+                    .getAllErrors()
+                    .stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.joining("<br>"));
+
+            return getFormHtml(errorMessages, form.getTitle(), form.getContent());
+        }
         return """
                 <h1>글쓰기 완료</h1>
                 <div>
