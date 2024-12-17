@@ -65,9 +65,8 @@ public class PostController {
 
     //목적지 url이 자신의 url과 같으면 생략 가능wwww
     @GetMapping("/write")
-    @ResponseBody
     public String showWrite() {
-        return getFormHtml("", "", "");
+        return "domain/post/post/write";
     }
 
     @PostMapping("/write")
