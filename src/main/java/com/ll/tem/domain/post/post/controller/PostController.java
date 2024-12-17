@@ -38,7 +38,7 @@ public class PostController {
                     .map(message -> message.split("-",2)[1])
                     .collect(Collectors.joining("<br>"));
 
-            return getFormHtml(errorMessages, form.getTitle(), form.getContent());
+            return getFormHtml(errorMessages, form.title, form.content);
         }
         return """
                 <h1>글쓰기 완료</h1>
@@ -46,7 +46,7 @@ public class PostController {
                     <h2>%s</h2>
                     <p>%s</p>
                 </div>
-                """.formatted(form.getTitle(), form.getContent());
+                """.formatted(form.title, form.content);
     }
 
     private String getFormHtml(String errorMessage, String title, String content) {
@@ -62,17 +62,16 @@ public class PostController {
                 """.formatted(errorMessage, title, content);
     }
 
-    @AllArgsConstructor
-    @Getter
-    @ToString
-    public static class PostWriteForm {
+   private record PostWriteForm (
         @NotBlank(message = "01-제목을 입력해주세요.")
         @Length(min = 5, message = "02-제목을 5자 이상 입력해주세요.")
-        private String title;
+        String title,
 
         @NotBlank(message = "03-내용을 입력해주세요.")
         @Length(min = 10, message = "04-내용을 10자 이상 입력해주세요.")
-        private String content;
+        String content
 
+    ) {
     }
+
 }
