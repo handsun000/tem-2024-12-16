@@ -1,9 +1,11 @@
 package com.ll.tem.domain.post.post.controller;
 
 import com.ll.tem.domain.post.post.entity.Post;
+import com.ll.tem.domain.post.post.service.PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,29 +18,14 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/posts")
 public class PostController {
-    public List<Post> posts = new ArrayList<>() {{
-        add(
-                Post.builder()
-                        .title("제목1")
-                        .content("내용1")
-                        .build()
-        );
-        add(
-                Post.builder()
-                        .title("제목2")
-                        .content("내용2")
-                        .build()
-        );
-        add(
-                Post.builder()
-                        .title("제목3")
-                        .content("내용3")
-                        .build()
-        );
-    }};
+
+    @Autowired
+    private PostService postService;
+
 
     @GetMapping
     public String showList(Model model) {
+        List<Post> posts = postService.findAll();
         model.addAttribute("posts", posts.reversed());
 
         return "domain/post/post/list";
@@ -46,10 +33,7 @@ public class PostController {
 
     @GetMapping("/{id}")
     public String showDetail(Model model, @PathVariable long id) {
-        Post post = posts.stream()
-                .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElseThrow();
+        Post post = postService.findById(id).get();
 
         model.addAttribute("post", post);
         return "domain/post/post/detail";
@@ -67,12 +51,10 @@ public class PostController {
             return "domain/post/post/write";
         }
 
-        posts.add(
-                Post.builder()
-                        .title(form.title)
-                        .content(form.content)
-                        .build()
-        );
+        postService.save( Post.builder()
+                .title(form.title)
+                .content(form.content)
+                .build());
 
         return "redirect:/posts";
     }
