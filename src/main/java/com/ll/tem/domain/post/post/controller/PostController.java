@@ -44,6 +44,17 @@ public class PostController {
         return "domain/post/post/list";
     }
 
+    @GetMapping("/{id}")
+    public String showDetail(Model model, @PathVariable long id) {
+        Post post = posts.stream()
+                .filter(p -> p.getId() == id)
+                .findFirst()
+                .orElseThrow();
+
+        model.addAttribute("post", post);
+        return "domain/post/post/detail";
+    }
+
     //목적지 url이 자신의 url과 같으면 생략 가능
     @GetMapping("/write")
     public String showWrite(PostWriteForm form) {
