@@ -3,11 +3,7 @@ package com.ll.tem.domain.post.post.controller;
 import com.ll.tem.domain.post.post.entity.Post;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -62,23 +58,13 @@ public class PostController {
 
     //목적지 url이 자신의 url과 같으면 생략 가능
     @GetMapping("/write")
-    public String showWrite() {
+    public String showWrite(PostWriteForm form) {
         return "domain/post/post/write";
     }
 
     @PostMapping("/write")
-    public String write(@ModelAttribute("form") @Valid PostWriteForm form, BindingResult bindingResult, Model model) {
+    public String write(@Valid PostWriteForm form, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult
-                    .getAllErrors()
-                    .stream()
-                    .map(error -> error.getDefaultMessage())
-                    .sorted()
-                    .map(message -> message.split("-", 2)[1])
-                    .collect(Collectors.joining("<br>"));
-
-            model.addAttribute("errorMessage", errorMessage);
-
             return "domain/post/post/write";
         }
 
@@ -94,11 +80,11 @@ public class PostController {
 
     private record PostWriteForm(
             @NotBlank(message = "01-제목을 입력해주세요.")
-            @Length(min = 5, message = "02-제목을 5자 이상 입력해주세요.")
+            @Length(min = 2, message = "02-제목을 2자 이상 입력해주세요.")
             String title,
 
             @NotBlank(message = "03-내용을 입력해주세요.")
-            @Length(min = 10, message = "04-내용을 10자 이상 입력해주세요.")
+            @Length(min = 2, message = "04-내용을 2자 이상 입력해주세요.")
             String content
 
     ) {
